@@ -2,13 +2,13 @@ import streamlit as st
 
 # Configuração da Página
 st.set_page_config(
-    page_title="Gerador de Sorteios - R7 Esportes",
+    page_title="Gerador de Embeds - R7 Esportes",
     page_icon="⚽",
     layout="wide"
 )
 
-st.title("⚽ Gerador de Embeds de Sorteios - R7 Esportes")
-st.markdown("Ferramenta para a redação gerar os códigos HTML de chaveamentos e potes de forma automatizada.")
+st.title("⚽ Gerador de Embeds Diretos - R7 Esportes")
+st.markdown("Ferramenta para a redação gerar o bloco HTML pronto para colar direto no CMS (sem precisar de arquivos externos).")
 
 # --- BARRA LATERAL (CONFIGURAÇÃO) ---
 st.sidebar.header("Configuração do Sorteio")
@@ -24,14 +24,13 @@ fase = st.sidebar.selectbox(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.info("Preencha os campos ao lado com os nomes dos times separados por vírgula. Ex: `Flamengo (BRA), Palmeiras (BRA)`")
+st.sidebar.info("Preencha os campos ao lado com os nomes dos times separados por vírgula.")
 
 # --- ÁREA PRINCIPAL DE ENTRADA DE DADOS ---
 st.header(f"Parâmetros: {campeonato} - {fase}")
 
 dados_input = {}
 
-# Layout de inputs baseado na fase escolhida
 if "Fase de Grupos" in fase:
     st.subheader("1. Potes de Origem")
     col1, col2 = st.columns(2)
@@ -81,111 +80,114 @@ elif "Quartas de Final" in fase:
 
 # --- BOTÃO DE GERAÇÃO DO CÓDIGO ---
 st.markdown("---")
-if st.button("🚀 Gerar Códigos do Embed", type="primary", use_container_width=True):
+if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_width=True):
     
-    # Função auxiliar corrigida (sem espaço no nome da variável)
     def gerar_itens_html(texto_virgula):
         itens = [x.strip() for x in texto_virgula.split(",") if x.strip()]
         html_out = ""
         for idx, item in enumerate(itens):
-            html_out += f'<div class="item-lista"><span class="pos">{idx+1}</span><span class="time-txt">{item}</span></div>\n'
+            html_out += f'<div class="r7-item-lista"><span class="r7-pos">{idx+1}</span><span class="r7-time-txt">{item}</span></div>\n'
         return html_out
 
-    # Montagem do HTML autossuficiente
     titulo_pagina = f"{campeonato} - {fase}"
     
-    html_gerado = f"""<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{titulo_pagina} - R7 Esportes</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto+Condensed:wght@400;700&display=swap');
-        :root {{ --r7-green: #08E148; --gold: #c5a059; --bg-dark: #020a05; }}
-        * {{ box-sizing: border-box; }}
-        body {{
-            background: radial-gradient(circle at center top, #063614 0%, var(--bg-dark) 80%);
-            background-attachment: fixed; color: #fff; font-family: 'Roboto Condensed', sans-serif;
-            margin: 0; padding: 15px; overflow-x: hidden; 
-        }}
-        header {{ text-align: center; margin-bottom: 25px; }}
-        .logo-header {{ display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'Oswald', sans-serif; font-size: 2.2rem; text-transform: uppercase; }}
-        .logo-r7 {{ background: var(--r7-green); color: #000; padding: 2px 10px; border-radius: 4px; font-weight: 900; }}
-        .title-sorteio {{ font-size: 1.6rem; letter-spacing: 1px; color: #fff; font-weight: bold; text-transform: uppercase; font-family: 'Oswald', sans-serif; margin-top: 5px; }}
-        .main-wrapper {{ max-width: 1100px; margin: 0 auto; padding-bottom: 30px; }}
-        .section-header {{ font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 1.3rem; letter-spacing: 2px; margin: 30px 0 15px; text-align: center; padding-bottom: 8px; }}
-        .grid-layout {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }}
-        .potes-header {{ color: var(--gold); border-bottom: 2px solid var(--gold); }}
-        .grupos-header, .confrontos-header {{ color: var(--r7-green); border-bottom: 2px solid var(--r7-green); }}
-        .card {{ background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); border-radius: 6px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); height: fit-content; }}
-        .card-header {{ font-family: 'Oswald', sans-serif; text-align: center; padding: 10px; font-weight: bold; text-transform: uppercase; font-size: 1.1rem; }}
-        .item-lista {{ display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; }}
-        .item-lista:last-child {{ border: none; }}
-        .pos {{ width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.8rem; margin-right: 12px; font-weight: bold; }}
-        .time-txt {{ font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }}
-        
-        .card.pote {{ border: 1px solid rgba(197, 160, 89, 0.3); }}
-        .card.pote .card-header {{ background: linear-gradient(to right, #6e5221, #c5a059, #6e5221); color: #000; }}
-        .card.pote .pos {{ background: rgba(197, 160, 89, 0.15); color: var(--gold); border: 1px solid var(--gold); }}
+    # Bloco HTML encapsulado com escopo seguro (sem afetar a página pai e travado em 780px)
+    html_gerado = f"""<!-- INICIO EMBED SORTEIO R7 -->
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto+Condensed:wght@400;700&display=swap');
+    
+    #r7-sorteio-wrapper {{
+        width: 100%;
+        max-width: 780px;
+        margin: 0 auto;
+        background: radial-gradient(circle at center top, #063614 0%, #020a05 80%);
+        color: #fff;
+        font-family: 'Roboto Condensed', sans-serif;
+        padding: 20px 15px;
+        border-radius: 8px;
+        box-sizing: border-box;
+    }}
+    #r7-sorteio-wrapper *, #r7-sorteio-wrapper *::before, #r7-sorteio-wrapper *::after {{
+        box-sizing: border-box;
+    }}
+    #r7-sorteio-wrapper header {{ text-align: center; margin-bottom: 25px; }}
+    #r7-sorteio-wrapper .r7-logo-header {{ display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'Oswald', sans-serif; font-size: 2rem; text-transform: uppercase; }}
+    #r7-sorteio-wrapper .r7-logo-r7 {{ background: #08E148; color: #000; padding: 2px 10px; border-radius: 4px; font-weight: 900; }}
+    #r7-sorteio-wrapper .r7-title-sorteio {{ font-size: 1.4rem; letter-spacing: 1px; color: #fff; font-weight: bold; text-transform: uppercase; font-family: 'Oswald', sans-serif; margin-top: 5px; }}
+    #r7-sorteio-wrapper .r7-section-header {{ font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 1.2rem; letter-spacing: 2px; margin: 25px 0 12px; text-align: center; padding-bottom: 6px; }}
+    #r7-sorteio-wrapper .r7-grid-layout {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }}
+    #r7-sorteio-wrapper .r7-potes-header {{ color: #c5a059; border-bottom: 2px solid #c5a059; }}
+    #r7-sorteio-wrapper .r7-grupos-header, #r7-sorteio-wrapper .r7-confrontos-header {{ color: #08E148; border-bottom: 2px solid #08E148; }}
+    #r7-sorteio-wrapper .r7-card {{ background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); border-radius: 6px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); height: fit-content; }}
+    #r7-sorteio-wrapper .r7-card-header {{ font-family: 'Oswald', sans-serif; text-align: center; padding: 10px; font-weight: bold; text-transform: uppercase; font-size: 1rem; }}
+    #r7-sorteio-wrapper .r7-item-lista {{ display: flex; align-items: center; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem; }}
+    #r7-sorteio-wrapper .r7-item-lista:last-child {{ border: none; }}
+    #r7-sorteio-wrapper .r7-pos {{ width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.75rem; margin-right: 10px; font-weight: bold; }}
+    #r7-sorteio-wrapper .r7-time-txt {{ font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }}
+    
+    #r7-sorteio-wrapper .r7-card.r7-pote {{ border: 1px solid rgba(197, 160, 89, 0.3); }}
+    #r7-sorteio-wrapper .r7-card.r7-pote .r7-card-header {{ background: linear-gradient(to right, #6e5221, #c5a059, #6e5221); color: #000; }}
+    #r7-sorteio-wrapper .r7-card.r7-pote .r7-pos {{ background: rgba(197, 160, 89, 0.15); color: #c5a059; border: 1px solid #c5a059; }}
 
-        .card.grupo, .card.confronto {{ border: 1px solid rgba(8, 225, 72, 0.4); }}
-        .card.grupo .card-header, .card.confronto .card-header {{ background: linear-gradient(to right, #031a0b, #0a4d20, #031a0b); color: var(--r7-green); border-bottom: 2px solid var(--r7-green); }}
-        .card.grupo .pos, .card.confronto .pos {{ background: rgba(8, 225, 72, 0.2); color: var(--r7-green); border: 1px solid var(--r7-green); }}
-        
-        .tag-jogo {{ font-size: 0.65rem; padding: 2px 5px; border-radius: 3px; margin-right: 10px; font-weight: bold; min-width: 42px; text-align: center; }}
-        .ida {{ background: var(--r7-green); color: #000; }}
-        .volta {{ background: #fff; color: #000; }}
-        .vs {{ margin: 0 8px; color: var(--r7-green); font-style: italic; font-size: 0.8rem; font-weight: bold; }}
-        
-        @media (max-width: 768px) {{ .grid-layout {{ grid-template-columns: 1fr; }} }}
-    </style>
-</head>
-<body>
-    <div class="main-wrapper" id="content-height-wrapper">
-        <header>
-            <div class="logo-header"><span class="logo-r7">R7</span> ESPORTES</div>
-            <div class="title-sorteio">{titulo_pagina}</div>
-        </header>
+    #r7-sorteio-wrapper .r7-card.r7-grupo, #r7-sorteio-wrapper .r7-card.r7-confronto {{ border: 1px solid rgba(8, 225, 72, 0.4); }}
+    #r7-sorteio-wrapper .r7-card.r7-grupo .r7-card-header, #r7-sorteio-wrapper .r7-card.r7-confronto .r7-card-header {{ background: linear-gradient(to right, #031a0b, #0a4d20, #031a0b); color: #08E148; border-bottom: 2px solid #08E148; }}
+    #r7-sorteio-wrapper .r7-card.r7-grupo .r7-pos, #r7-sorteio-wrapper .r7-card.r7-confronto .r7-pos {{ background: rgba(8, 225, 72, 0.2); color: #08E148; border: 1px solid #08E148; }}
+    
+    #r7-sorteio-wrapper .r7-tag-jogo {{ font-size: 0.6rem; padding: 2px 4px; border-radius: 3px; margin-right: 8px; font-weight: bold; min-width: 38px; text-align: center; }}
+    #r7-sorteio-wrapper .r7-ida {{ background: #08E148; color: #000; }}
+    #r7-sorteio-wrapper .r7-volta {{ background: #fff; color: #000; }}
+    #r7-sorteio-wrapper .r7-vs {{ margin: 0 6px; color: #08E148; font-style: italic; font-size: 0.75rem; font-weight: bold; }}
+    
+    @media (max-width: 600px) {{
+        #r7-sorteio-wrapper .r7-grid-layout {{ grid-template-columns: 1fr; }}
+        #r7-sorteio-wrapper .r7-pote-times-grid {{ grid-template-columns: repeat(2, 1fr) !important; }}
+    }}
+</style>
+
+<div id="r7-sorteio-wrapper">
+    <header>
+        <div class="r7-logo-header"><span class="r7-logo-r7">R7</span> ESPORTES</div>
+        <div class="r7-title-sorteio">{titulo_pagina}</div>
+    </header>
 """
 
     if "Fase de Grupos" in fase:
         html_gerado += f"""
-        <div class="section-header potes-header">Potes do Sorteio</div>
-        <div class="grid-layout">
-            <div class="card pote"><div class="card-header">Pote 1</div>{gerar_itens_html(dados_input["pote1"])}</div>
-            <div class="card pote"><div class="card-header">Pote 2</div>{gerar_itens_html(dados_input["pote2"])}</div>
-            <div class="card pote"><div class="card-header">Pote 3</div>{gerar_itens_html(dados_input["pote3"])}</div>
-            <div class="card pote"><div class="card-header">Pote 4</div>{gerar_itens_html(dados_input["pote4"])}</div>
-        </div>
+    <div class="r7-section-header r7-potes-header">Potes do Sorteio</div>
+    <div class="r7-grid-layout">
+        <div class="r7-card r7-pote"><div class="r7-card-header">Pote 1</div>{gerar_itens_html(dados_input["pote1"])}</div>
+        <div class="r7-card r7-pote"><div class="r7-card-header">Pote 2</div>{gerar_itens_html(dados_input["pote2"])}</div>
+        <div class="r7-card r7-pote"><div class="r7-card-header">Pote 3</div>{gerar_itens_html(dados_input["pote3"])}</div>
+        <div class="r7-card r7-pote"><div class="r7-card-header">Pote 4</div>{gerar_itens_html(dados_input["pote4"])}</div>
+    </div>
 
-        <div class="section-header grupos-header">Grupos da Competição</div>
-        <div class="grid-layout">
-            <div class="card grupo"><div class="card-header">Grupo A</div>{gerar_itens_html(dados_input["grupoA"])}</div>
-            <div class="card grupo"><div class="card-header">Grupo B</div>{gerar_itens_html(dados_input["grupoB"])}</div>
-            <div class="card grupo"><div class="card-header">Grupo C</div>{gerar_itens_html(dados_input["grupoC"])}</div>
-            <div class="card grupo"><div class="card-header">Grupo D</div>{gerar_itens_html(dados_input["grupoD"])}</div>
-            <div class="card grupo"><div class="card-header">Grupo E</div>{gerar_itens_html(dados_input["grupoE"])}</div>
-            <div class="card grupo"><div class="card-header">Grupo F</div>{gerar_itens_html(dados_input["grupoF"])}</div>
-            <div class="card grupo"><div class="card-header">Grupo G</div>{gerar_itens_html(dados_input["grupoG"])}</div>
-            <div class="card grupo"><div class="card-header">Grupo H</div>{gerar_itens_html(dados_input["grupoH"])}</div>
-        </div>
+    <div class="r7-section-header r7-grupos-header">Grupos da Competição</div>
+    <div class="r7-grid-layout">
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo A</div>{gerar_itens_html(dados_input["grupoA"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo B</div>{gerar_itens_html(dados_input["grupoB"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo C</div>{gerar_itens_html(dados_input["grupoC"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo D</div>{gerar_itens_html(dados_input["grupoD"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo E</div>{gerar_itens_html(dados_input["grupoE"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo F</div>{gerar_itens_html(dados_input["grupoF"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo G</div>{gerar_itens_html(dados_input["grupoG"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo H</div>{gerar_itens_html(dados_input["grupoH"])}</div>
+    </div>
         """
     else:
         pote_unico_itens = [x.strip() for x in dados_input["poteUnico"].split(",") if x.strip()]
-        html_pote_grid = "".join([f'<div style="background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); padding: 8px; border-radius: 4px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 0.9rem;">{t}</div>' for t in pote_unico_itens])
+        html_pote_grid = "".join([f'<div style="background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); padding: 8px; border-radius: 4px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 0.85rem;">{t}</div>' for t in pote_unico_itens])
         
         html_gerado += f"""
-        <div class="section-header potes-header">Equipes Classificadas (Pote Único)</div>
-        <div class="card pote" style="margin-bottom: 30px;">
-            <div class="card-header">Pote Único</div>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 15px;">
-                {html_pote_grid}
-            </div>
+    <div class="r7-section-header r7-potes-header">Equipes Classificadas (Pote Único)</div>
+    <div class="r7-card r7-pote" style="margin-bottom: 25px;">
+        <div class="r7-card-header">Pote Único</div>
+        <div class="r7-pote-times-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px;">
+            {html_pote_grid}
         </div>
+    </div>
 
-        <div class="section-header confrontos-header">Confrontos Definidos</div>
-        <div class="grid-layout">
+    <div class="r7-section-header r7-confrontos-header">Confrontos Definidos</div>
+    <div class="r7-grid-layout">
         """
         
         for idx, chave_str in enumerate(dados_input["chaves"]):
@@ -194,59 +196,19 @@ if st.button("🚀 Gerar Códigos do Embed", type="primary", use_container_width
             t2 = partes[1] if len(partes) > 1 else "Time B"
             
             html_gerado += f"""
-            <div class="card confronto">
-                <div class="card-header">Confronto {idx+1}</div>
-                <div class="item-lista"><span class="tag-jogo ida">IDA</span><span class="time-txt">{t1}</span> <span class="vs">X</span> <span class="time-txt">{t2}</span></div>
-                <div class="item-lista"><span class="tag-jogo volta">VOLTA</span><span class="time-txt">{t2}</span> <span class="vs">X</span> <span class="time-txt">{t1}</span></div>
-            </div>
+        <div class="r7-card r7-confronto">
+            <div class="r7-card-header">Confronto {idx+1}</div>
+            <div class="r7-item-lista"><span class="r7-tag-jogo r7-ida">IDA</span><span class="r7-time-txt">{t1}</span> <span class="r7-vs">X</span> <span class="r7-time-txt">{t2}</span></div>
+            <div class="r7-item-lista"><span class="r7-tag-jogo r7-volta">VOLTA</span><span class="r7-time-txt">{t2}</span> <span class="r7-vs">X</span> <span class="r7-time-txt">{t1}</span></div>
+        </div>
             """
         html_gerado += "</div>"
 
     html_gerado += """
-    </div>
-    <script>
-        function notifyHeight() {
-            const wrapper = document.getElementById('content-height-wrapper');
-            if(wrapper) {
-                const height = Math.ceil(wrapper.getBoundingClientRect().height);
-                window.parent.postMessage({ sentinel: 'amp', type: 'embed-size', height: height + 20 }, '*');
-            }
-        }
-        window.addEventListener('load', notifyHeight);
-        window.addEventListener('resize', notifyHeight);
-    </script>
-</body>
-</html>
+</div>
+<!-- FIM EMBED SORTEIO R7 -->
 """
 
-    url_hospedagem = st.text_input(
-        "URL onde o arquivo HTML final será hospedado:", 
-        "https://media.r7.com/r7/media/esportes/copadobrasil/sorteio.html"
-    )
-
-    codigo_iframe = f"""<div style="width: 100%; max-width: 780px; margin: 0 auto;">
-<iframe 
-        id="iframe_sorteio_r7"
-        src="{url_hospedagem}" 
-        width="100%" 
-        height="1500" 
-        style="border:none; width: 100%; display: block;" 
-        scrolling="no">
-</iframe>
-</div>
-<script>
-    window.addEventListener('message', function(e) {{
-        if (e.data && (e.data.type === 'embed-size' || e.data.sentinel === 'amp')) {{
-            var iframe = document.getElementById('iframe_sorteio_r7');
-            if (iframe && e.data.height) {{
-                iframe.style.height = e.data.height + 'px';
-            }}
-        }}
-    }}, false);
-</script>"""
-
-    st.subheader("1. Cole este código na Matéria (no CMS do R7):")
-    st.code(codigo_iframe, language="html")
-
-    st.subheader("2. Salve este código no arquivo HTML do servidor:")
+    st.success("Bloco HTML gerado com sucesso!")
+    st.subheader("Copie o código abaixo e cole diretamente no editor HTML da matéria (CMS do R7):")
     st.code(html_gerado, language="html")
