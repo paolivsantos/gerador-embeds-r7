@@ -81,9 +81,9 @@ elif "Quartas de Final" in fase:
 
 # --- BOTÃO DE GERAÇÃO DO CÓDIGO ---
 st.markdown("---")
-if st.button("🚀 Gerar Código HTML do Embed", type="primary", use_container_width=True):
+if st.button("🚀 Gerar Códigos do Embed", type="primary", use_container_width=True):
     
-    # Função auxiliar para formatar strings em listas HTML
+    # Função auxiliar corrigida (sem espaço no nome da variável)
     def gerar_itens_html(texto_virgula):
         itens = [x.strip() for x in texto_virgula.split(",") if x.strip()]
         html_out = ""
@@ -91,7 +91,7 @@ if st.button("🚀 Gerar Código HTML do Embed", type="primary", use_container_w
             html_out += f'<div class="item-lista"><span class="pos">{idx+1}</span><span class="time-txt">{item}</span></div>\n'
         return html_out
 
-    # Montagem do HTML autossuficiente (sem precisar de JSON externo)
+    # Montagem do HTML autossuficiente
     titulo_pagina = f"{campeonato} - {fase}"
     
     html_gerado = f"""<!DOCTYPE html>
@@ -125,7 +125,6 @@ if st.button("🚀 Gerar Código HTML do Embed", type="primary", use_container_w
         .pos {{ width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.8rem; margin-right: 12px; font-weight: bold; }}
         .time-txt {{ font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }}
         
-        /* Estilos específicos */
         .card.pote {{ border: 1px solid rgba(197, 160, 89, 0.3); }}
         .card.pote .card-header {{ background: linear-gradient(to right, #6e5221, #c5a059, #6e5221); color: #000; }}
         .card.pote .pos {{ background: rgba(197, 160, 89, 0.15); color: var(--gold); border: 1px solid var(--gold); }}
@@ -150,7 +149,6 @@ if st.button("🚀 Gerar Código HTML do Embed", type="primary", use_container_w
         </header>
 """
 
-    # Gerando o conteúdo interno de acordo com a fase selecionada
     if "Fase de Grupos" in fase:
         html_gerado += f"""
         <div class="section-header potes-header">Potes do Sorteio</div>
@@ -173,7 +171,7 @@ if st.button("🚀 Gerar Código HTML do Embed", type="primary", use_container_w
             <div class="card grupo"><div class="card-header">Grupo H</div>{gerar_itens_html(dados_input["grupoH"])}</div>
         </div>
         """
-    else: # Oitavas ou Quartas
+    else:
         pote_unico_itens = [x.strip() for x in dados_input["poteUnico"].split(",") if x.strip()]
         html_pote_grid = "".join([f'<div style="background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); padding: 8px; border-radius: 4px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 0.9rem;">{t}</div>' for t in pote_unico_itens])
         
@@ -204,7 +202,6 @@ if st.button("🚀 Gerar Código HTML do Embed", type="primary", use_container_w
             """
         html_gerado += "</div>"
 
-    # Rodapé do HTML do embed com o script de redimensionamento automatizado
     html_gerado += """
     </div>
     <script>
@@ -222,6 +219,34 @@ if st.button("🚀 Gerar Código HTML do Embed", type="primary", use_container_w
 </html>
 """
 
-    st.success("Código gerado com sucesso!")
-    st.subheader("Copie o código abaixo e salve no seu servidor estático para gerar o embed:")
+    url_hospedagem = st.text_input(
+        "URL onde o arquivo HTML final será hospedado:", 
+        "https://media.r7.com/r7/media/esportes/copadobrasil/sorteio.html"
+    )
+
+    codigo_iframe = f"""<div style="width: 100%; max-width: 780px; margin: 0 auto;">
+<iframe 
+        id="iframe_sorteio_r7"
+        src="{url_hospedagem}" 
+        width="100%" 
+        height="1500" 
+        style="border:none; width: 100%; display: block;" 
+        scrolling="no">
+</iframe>
+</div>
+<script>
+    window.addEventListener('message', function(e) {{
+        if (e.data && (e.data.type === 'embed-size' || e.data.sentinel === 'amp')) {{
+            var iframe = document.getElementById('iframe_sorteio_r7');
+            if (iframe && e.data.height) {{
+                iframe.style.height = e.data.height + 'px';
+            }}
+        }}
+    }}, false);
+</script>"""
+
+    st.subheader("1. Cole este código na Matéria (no CMS do R7):")
+    st.code(codigo_iframe, language="html")
+
+    st.subheader("2. Salve este código no arquivo HTML do servidor:")
     st.code(html_gerado, language="html")
