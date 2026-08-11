@@ -84,7 +84,7 @@ st.markdown("---")
 if st.button("🚀 Gerar Código HTML do Embed", type="primary", use_container_width=True):
     
     # Função auxiliar para formatar strings em listas HTML
-    def gerar_itens_html(texto_ virgula):
+    def gerar_itens_html(texto_virgula):
         itens = [x.strip() for x in texto_virgula.split(",") if x.strip()]
         html_out = ""
         for idx, item in enumerate(itens):
