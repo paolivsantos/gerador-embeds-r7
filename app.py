@@ -20,7 +20,12 @@ campeonato = st.sidebar.selectbox(
 
 fase = st.sidebar.selectbox(
     "Selecione a Fase",
-    ["Fase de Grupos (Potes e Grupos)", "Oitavas de Final (Pote Único)", "Quartas de Final (Pote Único)"]
+    [
+        "Fase de Grupos (Potes e Grupos)", 
+        "Oitavas de Final (Pote Único)", 
+        "Quartas de Final (Pote Único)", 
+        "Semifinais (Confrontos)"
+    ]
 )
 
 st.sidebar.markdown("---")
@@ -78,6 +83,17 @@ elif "Quartas de Final" in fase:
             val = st.text_input(f"Confronto {i} (Ex: Time A, Time B)", f"Time A{i}, Time B{i}")
             dados_input["chaves"].append(val)
 
+elif "Semifinais" in fase:
+    dados_input["poteUnico"] = st.text_area("Times Classificados para as Semis", "Flamengo, Palmeiras, Corinthians, São Paulo")
+    
+    st.subheader("Confrontos das Semifinais (Ida e Volta)")
+    chaves_cols = st.columns(2)
+    dados_input["chaves"] = []
+    for i in range(1, 3):
+        with chaves_cols[(i-1)%2]:
+            val = st.text_input(f"Chave {i} (Ex: Time A, Time B)", f"Time A{i}, Time B{i}")
+            dados_input["chaves"].append(val)
+
 # --- BOTÃO DE GERAÇÃO DO CÓDIGO ---
 st.markdown("---")
 if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_width=True):
@@ -91,7 +107,6 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
 
     titulo_pagina = f"{campeonato} - {fase}"
     
-    # Bloco HTML encapsulado com escopo seguro (sem afetar a página pai e travado em 780px)
     html_gerado = f"""<!-- INICIO EMBED SORTEIO R7 -->
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Roboto+Condensed:wght@400;700&display=swap');
@@ -175,13 +190,16 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
         """
     else:
         pote_unico_itens = [x.strip() for x in dados_input["poteUnico"].split(",") if x.strip()]
+        cols_grid = 4 if len(pote_unico_itens) > 2 else 2
         html_pote_grid = "".join([f'<div style="background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); padding: 8px; border-radius: 4px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 0.85rem;">{t}</div>' for t in pote_unico_itens])
         
+        titulo_bloco_pote = "Classificados" if "Semifinais" in fase else "Equipes Classificadas (Pote Único)"
+        
         html_gerado += f"""
-    <div class="r7-section-header r7-potes-header">Equipes Classificadas (Pote Único)</div>
+    <div class="r7-section-header r7-potes-header">{titulo_bloco_pote}</div>
     <div class="r7-card r7-pote" style="margin-bottom: 25px;">
-        <div class="r7-card-header">Pote Único</div>
-        <div class="r7-pote-times-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px;">
+        <div class="r7-card-header">Participantes</div>
+        <div class="r7-pote-times-grid" style="display: grid; grid-template-columns: repeat({cols_grid}, 1fr); gap: 8px; padding: 12px;">
             {html_pote_grid}
         </div>
     </div>
@@ -197,7 +215,7 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
             
             html_gerado += f"""
         <div class="r7-card r7-confronto">
-            <div class="r7-card-header">Confronto {idx+1}</div>
+            <div class="r7-card-header">Chave {idx+1}</div>
             <div class="r7-item-lista"><span class="r7-tag-jogo r7-ida">IDA</span><span class="r7-time-txt">{t1}</span> <span class="r7-vs">X</span> <span class="r7-time-txt">{t2}</span></div>
             <div class="r7-item-lista"><span class="r7-tag-jogo r7-volta">VOLTA</span><span class="r7-time-txt">{t2}</span> <span class="r7-vs">X</span> <span class="r7-time-txt">{t1}</span></div>
         </div>
