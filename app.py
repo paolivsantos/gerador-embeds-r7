@@ -15,18 +15,25 @@ st.sidebar.header("Configuração do Sorteio")
 
 campeonato = st.sidebar.selectbox(
     "Selecione o Campeonato",
-    ["CONMEBOL Libertadores", "Copa do Brasil", "Copa Sul-Americana"]
+    ["CONMEBOL Libertadores", "Copa do Brasil", "Copa Sul-Americana", "Campeonato Paulista"]
 )
 
-fase = st.sidebar.selectbox(
-    "Selecione a Fase",
-    [
-        "Fase de Grupos (Potes e Grupos)", 
-        "Oitavas de Final (Pote Único)", 
-        "Quartas de Final (Pote Único)", 
-        "Semifinais (Confrontos)"
-    ]
-)
+# Define as fases disponíveis de acordo com o campeonato escolhido
+if campeonato == "Campeonato Paulista":
+    fase = st.sidebar.selectbox(
+        "Selecione a Fase",
+        ["Fase de Grupos (4 Potes e 4 Grupos)"]
+    )
+else:
+    fase = st.sidebar.selectbox(
+        "Selecione a Fase",
+        [
+            "Fase de Grupos (Potes e Grupos)", 
+            "Oitavas de Final (Pote Único)", 
+            "Quartas de Final (Pote Único)", 
+            "Semifinais (Confrontos)"
+        ]
+    )
 
 st.sidebar.markdown("---")
 st.sidebar.info("Preencha os campos ao lado com os nomes dos times separados por vírgula.")
@@ -36,7 +43,26 @@ st.header(f"Parâmetros: {campeonato} - {fase}")
 
 dados_input = {}
 
-if "Fase de Grupos" in fase:
+if "Fase de Grupos" in fase and campeonato == "Campeonato Paulista":
+    st.subheader("1. Potes do Paulistão (Potes 1 a 4)")
+    col1, col2 = st.columns(2)
+    with col1:
+        dados_input["pote1"] = st.text_area("Pote 1 (Sep. por vírgula)", "Palmeiras, São Paulo, Corinthians, Santos")
+        dados_input["pote2"] = st.text_area("Pote 2 (Sep. por vírgula)", "Red Bull Bragantino, Novorizontino, Internacional de Limeira, Mirassol")
+    with col2:
+        dados_input["pote3"] = st.text_area("Pote 3 (Sep. por vírgula)", "Água Santa, Santo André, Portuguesa, Guarani")
+        dados_input["pote4"] = st.text_area("Pote 4 (Sep. por vírgula)", "Ponte Preta, Novorizontino, Botafogo-SP, Velo Clube")
+
+    st.subheader("2. Grupos de Destino (A ao D)")
+    g_col1, g_col2 = st.columns(2)
+    with g_col1:
+        dados_input["grupoA"] = st.text_input("Grupo A", "Palmeiras, Internacional de Limeira, Botafogo-SP, Portuguesa")
+        dados_input["grupoB"] = st.text_input("Grupo B", "Santos, Red Bull Bragantino, Guarani, Velo Clube")
+    with g_col2:
+        dados_input["grupoC"] = st.text_input("Grupo C", "São Paulo, Mirassol, Água Santa, Ponte Preta")
+        dados_input["grupoD"] = st.text_input("Grupo D", "Corinthians, Novorizontino, Santo André, (Time A)")
+
+elif "Fase de Grupos" in fase: # Libertadores / Sul-Americana
     st.subheader("1. Potes de Origem")
     col1, col2 = st.columns(2)
     with col1:
@@ -166,7 +192,25 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
     </header>
 """
 
-    if "Fase de Grupos" in fase:
+    if campeonato == "Campeonato Paulista":
+        html_gerado += f"""
+    <div class="r7-section-header r7-potes-header">Potes do Sorteio</div>
+    <div class="r7-grid-layout">
+        <div class="r7-card r7-pote"><div class="r7-card-header">Pote 1</div>{gerar_itens_html(dados_input["pote1"])}</div>
+        <div class="r7-card r7-pote"><div class="r7-card-header">Pote 2</div>{gerar_itens_html(dados_input["pote2"])}</div>
+        <div class="r7-card r7-pote"><div class="r7-card-header">Pote 3</div>{gerar_itens_html(dados_input["pote3"])}</div>
+        <div class="r7-card r7-pote"><div class="r7-card-header">Pote 4</div>{gerar_itens_html(dados_input["pote4"])}</div>
+    </div>
+
+    <div class="r7-section-header r7-grupos-header">Grupos do Paulistão</div>
+    <div class="r7-grid-layout">
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo A</div>{gerar_itens_html(dados_input["grupoA"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo B</div>{gerar_itens_html(dados_input["grupoB"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo C</div>{gerar_itens_html(dados_input["grupoC"])}</div>
+        <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo D</div>{gerar_itens_html(dados_input["grupoD"])}</div>
+    </div>
+        """
+    elif "Fase de Grupos" in fase:
         html_gerado += f"""
     <div class="r7-section-header r7-potes-header">Potes do Sorteio</div>
     <div class="r7-grid-layout">
@@ -210,7 +254,7 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
         
         for idx, chave_str in enumerate(dados_input["chaves"]):
             partes = [p.strip() for p in chave_str.split(",")]
-            t1 = partes[0] if len(partes) > 0 else "Time A"
+            t1 = partes[0] if len(p.strip()) > 0 else "Time A"
             t2 = partes[1] if len(partes) > 1 else "Time B"
             
             html_gerado += f"""
