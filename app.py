@@ -217,7 +217,8 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
             html_out += f'<div class="r7-item-lista"><span class="r7-pos">{idx + 1}</span><span class="r7-time-txt">{item}</span></div>\n'
         return html_out
 
-    titulo_pagina = f"{campeonato} - {fase}"
+    titulo_campeonato = campeonato
+    subtitulo_fase = fase
 
     html_gerado = f"""<!-- INICIO EMBED SORTEIO R7 -->
 <style>
@@ -240,7 +241,29 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
     #r7-sorteio-wrapper header {{ text-align: center; margin-bottom: 25px; }}
     #r7-sorteio-wrapper .r7-logo-header {{ display: flex; align-items: center; justify-content: center; gap: 12px; font-family: 'Oswald', sans-serif; font-size: 2rem; text-transform: uppercase; }}
     #r7-sorteio-wrapper .r7-logo-r7 {{ background: #08E148; color: #000; padding: 2px 10px; border-radius: 4px; font-weight: 900; }}
-    #r7-sorteio-wrapper .r7-title-sorteio {{ font-size: 1.4rem; letter-spacing: 1px; color: #fff; font-weight: bold; text-transform: uppercase; font-family: 'Oswald', sans-serif; margin-top: 5px; }}
+    #r7-sorteio-wrapper .r7-title-sorteio {{
+        font-size: 1.45rem;
+        letter-spacing: 0.8px;
+        color: #fff;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-family: 'Oswald', sans-serif;
+        margin-top: 8px;
+        line-height: 1.2;
+        text-wrap: balance;
+    }}
+    #r7-sorteio-wrapper .r7-subtitle-fase {{
+        display: block;
+        font-size: 0.95rem;
+        letter-spacing: 1.4px;
+        color: #c5a059;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-family: 'Roboto Condensed', sans-serif;
+        margin-top: 6px;
+        line-height: 1.3;
+        text-wrap: balance;
+    }}
     #r7-sorteio-wrapper .r7-section-header {{ font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 1.2rem; letter-spacing: 2px; margin: 25px 0 12px; text-align: center; padding-bottom: 6px; }}
     #r7-sorteio-wrapper .r7-grid-layout {{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }}
     #r7-sorteio-wrapper .r7-potes-header {{ color: #c5a059; border-bottom: 2px solid #c5a059; }}
@@ -274,7 +297,8 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
 <div id="r7-sorteio-wrapper">
     <header>
         <div class="r7-logo-header"><span class="r7-logo-r7">R7</span> ESPORTES</div>
-        <div class="r7-title-sorteio">{titulo_pagina}</div>
+        <div class="r7-title-sorteio">{titulo_campeonato}</div>
+        <div class="r7-subtitle-fase">{subtitulo_fase}</div>
     </header>
 """
 
@@ -359,36 +383,4 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
 
         html_gerado += f"""
     <div class="r7-section-header r7-potes-header">{titulo_bloco_pote}</div>
-    <div class="r7-card r7-pote" style="margin-bottom: 25px;">
-        <div class="r7-card-header">Participantes</div>
-        <div class="r7-pote-times-grid" style="display: grid; grid-template-columns: repeat({cols_grid}, 1fr); gap: 8px; padding: 12px;">
-            {html_pote_grid}
-        </div>
-    </div>
-
-    <div class="r7-section-header r7-confrontos-header">Confrontos Definidos</div>
-    <div class="r7-grid-layout">
-        """
-
-        for idx, chave_str in enumerate(dados_input["chaves"]):
-            partes = [p.strip() for p in chave_str.split(",")]
-            t1 = partes[0] if len(partes) > 0 else "Time A"
-            t2 = partes[1] if len(partes) > 1 else "Time B"
-
-            html_gerado += f"""
-        <div class="r7-card r7-confronto">
-            <div class="r7-card-header">Chave {idx + 1}</div>
-            <div class="r7-item-lista"><span class="r7-tag-jogo r7-ida">IDA</span><span class="r7-time-txt">{t1}</span> <span class="r7-vs">X</span> <span class="r7-time-txt">{t2}</span></div>
-            <div class="r7-item-lista"><span class="r7-tag-jogo r7-volta">VOLTA</span><span class="r7-time-txt">{t2}</span> <span class="r7-vs">X</span> <span class="r7-time-txt">{t1}</span></div>
-        </div>
-            """
-        html_gerado += "</div>"
-
-    html_gerado += """
-</div>
-<!-- FIM EMBED SORTEIO R7 -->
-"""
-
-    st.success("Bloco HTML gerado com sucesso!")
-    st.subheader("Copie o código abaixo e cole diretamente no editor HTML da matéria (CMS do R7):")
-    st.code(html_gerado, language="html")
+    <div class="r7-card r7-pote" style="margin-bottom:
