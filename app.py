@@ -312,13 +312,13 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
     <div class="r7-section-header r7-grupos-header">Grupos da Copinha</div>
     <div class="r7-grid-layout">
 {cards_grupos}    </div>
-        """
+"""
 
     elif campeonato == "Copa São Paulo de Futebol Júnior" and "Jogo Único" in fase:
         html_gerado += """
     <div class="r7-section-header r7-confrontos-header">Confrontos (Jogo Único)</div>
     <div class="r7-grid-layout">
-        """
+"""
         for label_confronto, chave_str in dados_input["chaves_jogo_unico"]:
             partes = [p.strip() for p in chave_str.split(",")]
             t1 = partes[0] if len(partes) > 0 and partes[0] else "Time A"
@@ -329,8 +329,8 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
             <div class="r7-card-header">{label_confronto}</div>
             <div class="r7-item-lista"><span class="r7-tag-jogo r7-unico">ÚNICO</span><span class="r7-time-txt">{t1}</span> <span class="r7-vs">X</span> <span class="r7-time-txt">{t2}</span></div>
         </div>
-            """
-        html_gerado += "    </div>"
+"""
+        html_gerado += "    </div>\n"
 
     elif campeonato == "Campeonato Paulista":
         html_gerado += f"""
@@ -349,7 +349,7 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
         <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo C</div>{gerar_itens_html(dados_input["grupoC"])}</div>
         <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo D</div>{gerar_itens_html(dados_input["grupoD"])}</div>
     </div>
-        """
+"""
 
     elif "Fase de Grupos" in fase:
         html_gerado += f"""
@@ -372,15 +372,50 @@ if st.button("🚀 Gerar Bloco HTML para o CMS", type="primary", use_container_w
         <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo G</div>{gerar_itens_html(dados_input["grupoG"])}</div>
         <div class="r7-card r7-grupo"><div class="r7-card-header">Grupo H</div>{gerar_itens_html(dados_input["grupoH"])}</div>
     </div>
-        """
+"""
 
     else:
         pote_unico_itens = [x.strip() for x in dados_input["poteUnico"].split(",") if x.strip()]
         cols_grid = 4 if len(pote_unico_itens) > 2 else 2
-        html_pote_grid = "".join([f'<div style="background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); padding: 8px; border-radius: 4px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 0.85rem;">{t}</div>' for t in pote_unico_itens])
+        html_pote_grid = "".join([
+            f'<div style="background: rgba(197, 160, 89, 0.1); border: 1px solid rgba(197, 160, 89, 0.3); padding: 8px; border-radius: 4px; text-align: center; font-weight: bold; text-transform: uppercase; font-size: 0.85rem;">{t}</div>'
+            for t in pote_unico_itens
+        ])
 
         titulo_bloco_pote = "Classificados" if "Semifinais" in fase else "Equipes Classificadas (Pote Único)"
 
         html_gerado += f"""
     <div class="r7-section-header r7-potes-header">{titulo_bloco_pote}</div>
-    <div class="r7-card r7-pote" style="margin-bottom:
+    <div class="r7-card r7-pote" style="margin-bottom: 25px;">
+        <div class="r7-card-header">Participantes</div>
+        <div class="r7-pote-times-grid" style="display: grid; grid-template-columns: repeat({cols_grid}, 1fr); gap: 8px; padding: 12px;">
+            {html_pote_grid}
+        </div>
+    </div>
+
+    <div class="r7-section-header r7-confrontos-header">Confrontos Definidos</div>
+    <div class="r7-grid-layout">
+"""
+
+        for idx, chave_str in enumerate(dados_input["chaves"]):
+            partes = [p.strip() for p in chave_str.split(",")]
+            t1 = partes[0] if len(partes) > 0 else "Time A"
+            t2 = partes[1] if len(partes) > 1 else "Time B"
+
+            html_gerado += f"""
+        <div class="r7-card r7-confronto">
+            <div class="r7-card-header">Chave {idx + 1}</div>
+            <div class="r7-item-lista"><span class="r7-tag-jogo r7-ida">IDA</span><span class="r7-time-txt">{t1}</span> <span class="r7-vs">X</span> <span class="r7-time-txt">{t2}</span></div>
+            <div class="r7-item-lista"><span class="r7-tag-jogo r7-volta">VOLTA</span><span class="r7-time-txt">{t2}</span> <span class="r7-vs">X</span> <span class="r7-time-txt">{t1}</span></div>
+        </div>
+"""
+        html_gerado += "    </div>\n"
+
+    html_gerado += """
+</div>
+<!-- FIM EMBED SORTEIO R7 -->
+"""
+
+    st.success("Bloco HTML gerado com sucesso!")
+    st.subheader("Copie o código abaixo e cole diretamente no editor HTML da matéria (CMS do R7):")
+    st.code(html_gerado, language="html")
